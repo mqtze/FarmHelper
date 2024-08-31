@@ -10,7 +10,10 @@ import com.jelly.farmhelperv2.FarmHelper;
 import com.jelly.farmhelperv2.config.page.CustomFailsafeMessagesPage;
 import com.jelly.farmhelperv2.config.page.FailsafeNotificationsPage;
 import com.jelly.farmhelperv2.config.struct.Rewarp;
+import com.jelly.farmhelperv2.failsafe.Failsafe;
 import com.jelly.farmhelperv2.failsafe.FailsafeManager;
+import com.jelly.farmhelperv2.failsafe.impl.BedrockCageFailsafe;
+import com.jelly.farmhelperv2.failsafe.impl.DirtFailsafe;
 import com.jelly.farmhelperv2.feature.impl.*;
 import com.jelly.farmhelperv2.feature.impl.Proxy.ProxyType;
 import com.jelly.farmhelperv2.gui.AutoUpdaterGUI;
@@ -485,17 +488,22 @@ public class FarmHelperConfig extends Config {
         }
         LogUtils.sendWarning("Testing failsafe...");
         PlayerUtils.closeScreen();
-        if (testFailsafeType == 0) {
-            FailsafeManager.getInstance().possibleDetection(FailsafeManager.getInstance().failsafes.get(testFailsafeType));
+        Failsafe testingFailsafe = FailsafeManager.getInstance().failsafes.get(testFailsafeType);
+        if (testingFailsafe.equals(DirtFailsafe.getInstance()) || testingFailsafe.equals(BedrockCageFailsafe.getInstance())) {
+            LogUtils.sendError("You can't test this failsafe because it requires specific conditions to trigger!");
             return;
         }
-        FailsafeManager.getInstance().possibleDetection(FailsafeManager.getInstance().failsafes.get(testFailsafeType + 2));
+        FailsafeManager.getInstance().possibleDetection(testingFailsafe);
     };
 
     @Dropdown(name = "Test Failsafe Type", category = FAILSAFE, subcategory = "Testing",
             description = "Select failsafe scenario to test",
             options = {
+                    "Bad Effects",
                     "Banwave",
+                    "Bedrock Cage",
+                    "Cobweb",
+                    "Dirt",
                     "Disconnect",
                     "Evacuate",
                     "Full Inventory",
@@ -503,7 +511,7 @@ public class FarmHelperConfig extends Config {
                     "Item Change",
                     "Jacob",
                     "Knockback",
-                    "Low BPS",
+                    "Lower Average BPS",
                     "Rotation",
                     "Teleport",
                     "World Change"
@@ -1193,14 +1201,7 @@ public class FarmHelperConfig extends Config {
             name = "Use AOTE/V in Pests Destroyer", category = PESTS_DESTROYER, subcategory = "Pests Destroyer",
             description = "Uses AOTE/V in Pests Destroyer"
     )
-    public static boolean useAoteVInPestsDestroyer = true;
-
-    @Slider(
-            name = "Failsafe cutoff after using AOTE/V", category = PESTS_DESTROYER, subcategory = "Pests Destroyer",
-            description = "The time in ms after which macro will count failsafes after using AOTE/V",
-            min = 0, max = 1500
-    )
-    public static int failsafeCutoffAfterUsingAoteV = 500;
+    public static boolean useAoteVInPestsDestroyer = false;
 
     @Switch(
             name = "Don't teleport to plots when the spawn is not obstructed", category = PESTS_DESTROYER, subcategory = "Pests Destroyer",
@@ -2181,7 +2182,6 @@ public class FarmHelperConfig extends Config {
         this.addDependency("pestAdditionalGUIDelay", "enablePestsDestroyer");
         this.addDependency("sprintWhileFlying", "enablePestsDestroyer");
         this.addDependency("pausePestsDestroyerDuringJacobsContest", "enablePestsDestroyer");
-        this.addDependency("failsafeCutoffAfterUsingAoteV", "useAoteVInPestsDestroyer");
 
 
         this.hideIf("infoCookieBuffRequired", () -> GameStateHandler.getInstance().inGarden() || GameStateHandler.getInstance().getCookieBuffState() == BuffState.NOT_ACTIVE);

@@ -110,6 +110,7 @@ public class AutoComposter implements IFeature {
         composterState = ComposterState.NONE;
         buyState = BuyState.NONE;
         enabled = true;
+        composterChecked = false;
         delayClock.reset();
         RotationHandler.getInstance().reset();
         stuckClock.schedule(STUCK_DELAY);
@@ -126,8 +127,6 @@ public class AutoComposter implements IFeature {
     public void stop() {
         enabled = false;
         manuallyStarted = false;
-        composterChecked = false;
-        resetStatesAfterMacroDisabled();
         LogUtils.sendWarning("[Auto Composter] Macro stopped");
         RotationHandler.getInstance().reset();
         AutoBazaar.getInstance().stop();
@@ -142,6 +141,7 @@ public class AutoComposter implements IFeature {
     public void resetStatesAfterMacroDisabled() {
         if (!FarmHelperConfig.autoComposterAfkInfiniteMode) return;
         FarmHelperConfig.autoComposterAfkInfiniteMode = false;
+        afkDelay.reset();
         LogUtils.sendWarning("[Auto Composter] AFK Mode has been disabled");
     }
 
@@ -162,6 +162,7 @@ public class AutoComposter implements IFeature {
             LogUtils.sendWarning("[Auto Composter] AFK Mode has been disabled");
             stop();
             FarmHelperConfig.autoComposterAfkInfiniteMode = false;
+            afkDelay.reset();
         }
     }
 
@@ -171,10 +172,10 @@ public class AutoComposter implements IFeature {
         if (!FarmHelperConfig.autoComposterAfkInfiniteMode) return;
         if (mc.thePlayer == null || mc.theWorld == null) {
             FarmHelperConfig.autoComposterAfkInfiniteMode = false;
+            afkDelay.reset();
             FailsafeUtils.getInstance().sendNotification("[Auto Composter] AFK Mode has been disabled", TrayIcon.MessageType.WARNING);
             return;
         }
-
         if (MacroHandler.getInstance().isMacroToggled()) return;
         if (!PlayerUtils.isInBarn()) return;
         if (isRunning()) return;
@@ -190,7 +191,7 @@ public class AutoComposter implements IFeature {
         if (isRunning()) return false;
         if (!GameStateHandler.getInstance().inGarden()) return false;
         if (mc.thePlayer == null || mc.theWorld == null) return false;
-        if (FeatureManager.getInstance().isAnyOtherFeatureEnabled()) return false;
+        if (FeatureManager.getInstance().isAnyOtherFeatureEnabled(this)) return false;
 
         if (GameStateHandler.getInstance().getServerClosingSeconds().isPresent()) {
             LogUtils.sendError("[Auto Composter] Server is closing in " + GameStateHandler.getInstance().getServerClosingSeconds().get() + " seconds!");
@@ -207,24 +208,29 @@ public class AutoComposter implements IFeature {
             return false;
         }
 
-        if (GameStateHandler.getInstance().getComposterState() != GameStateHandler.BuffState.NOT_ACTIVE) {
-            int organicMatterLeft = GameStateHandler.getInstance().getOrganicMatterCount();
-            int fuelLeft = GameStateHandler.getInstance().getFuelCount();
-            if (!(organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) && !(fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
-                LogUtils.sendWarning("[Auto Composter] Composter is active or unknown, skipping...");
-                return false;
-            }
-        }
-
-
         if (!manual && GameStateHandler.getInstance().getCurrentPurse() < FarmHelperConfig.autoComposterMinMoney * 1_000) {
             LogUtils.sendError("[Auto Composter] The player's purse is too low, skipping...");
             if (FarmHelperConfig.autoComposterAfkInfiniteMode) {
                 LogUtils.sendWarning("[Auto Composter] Your purse is too low. Disabling AFK mode");
                 FarmHelperConfig.autoComposterAfkInfiniteMode = false;
+                afkDelay.reset();
             }
             return false;
         }
+
+        if (GameStateHandler.getInstance().getComposterState() != GameStateHandler.BuffState.NOT_ACTIVE) {
+            int organicMatterLeft = GameStateHandler.getInstance().getOrganicMatterCount();
+            int fuelLeft = GameStateHandler.getInstance().getFuelCount();
+            if (!(organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) && !(fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
+                LogUtils.sendWarning("[Auto Composter] Composter is active or unknown, skipping...");
+                if (FarmHelperConfig.autoComposterAfkInfiniteMode){
+                    LogUtils.sendDebug("[Auto Composter] Waiting 15 minutes for composter to empty...");
+                    afkDelay.schedule(15_000 * 60);
+                }
+                return false;
+            }
+        }
+
         return true;
     }
 

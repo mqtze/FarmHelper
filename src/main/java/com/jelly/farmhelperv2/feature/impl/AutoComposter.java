@@ -210,7 +210,7 @@ public class AutoComposter implements IFeature {
         if (GameStateHandler.getInstance().getComposterState() != GameStateHandler.BuffState.NOT_ACTIVE) {
             int organicMatterLeft = GameStateHandler.getInstance().getOrganicMatterCount();
             int fuelLeft = GameStateHandler.getInstance().getFuelCount();
-            if (!(organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) || !(fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
+            if (!(organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) && !(fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
                 LogUtils.sendWarning("[Auto Composter] Composter is active or unknown, skipping...");
                 return false;
             }

@@ -1019,7 +1019,7 @@ public class FarmHelperConfig extends Config {
     public static boolean visitorsExchangeTravelMethodInfo;
     @DualOption(
             name = "Travel method", category = VISITORS_MACRO, subcategory = "Visitors Macro",
-            description = "The travel method to use to get to the visitor stand",
+            description = "The travel method to use to get to the pest exchange desk",
             left = "Fly",
             right = "Walk"
     )

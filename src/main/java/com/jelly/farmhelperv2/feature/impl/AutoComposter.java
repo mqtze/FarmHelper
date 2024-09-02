@@ -296,6 +296,7 @@ public class AutoComposter implements IFeature {
                     stop();
                     MacroHandler.getInstance().triggerWarpGarden(true, true, false);
                     delayClock.schedule(2_500);
+                    afkDelay.schedule(15_000 * 60);
                 }
                 break;
         }

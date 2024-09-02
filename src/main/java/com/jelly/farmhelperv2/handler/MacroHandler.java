@@ -139,6 +139,14 @@ public class MacroHandler {
                 PestsDestroyer.getInstance().stop();
                 return;
             }
+            if (AutoComposter.getInstance().isRunning() || FarmHelperConfig.autoComposterAfkInfiniteMode) {
+                if (FarmHelperConfig.autoComposterAfkInfiniteMode) {
+                    LogUtils.sendWarning("[Auto Composter] Disabling AFK Mode!");
+                    FarmHelperConfig.autoComposterAfkInfiniteMode = false;
+                }
+                AutoComposter.getInstance().stop();
+                return;
+            }
             if (AutoPestExchange.getInstance().isRunning()) {
                 AutoPestExchange.getInstance().stop();
                 return;
@@ -521,7 +529,11 @@ public class MacroHandler {
             LogUtils.sendDebug("Activating Visitors Macro");
             VisitorsMacro.getInstance().start();
             return true;
-        } else if (AutoPestExchange.getInstance().canEnableMacro(false)) {
+        } else if (AutoComposter.getInstance().canEnableMacro(false)) {
+            LogUtils.sendDebug("Activating Auto Composter");
+            AutoComposter.getInstance().start();
+            return true;
+        }else if (AutoPestExchange.getInstance().canEnableMacro(false)) {
             LogUtils.sendDebug("Activating Auto Pest Hunter");
             AutoPestExchange.getInstance().start();
             return true;

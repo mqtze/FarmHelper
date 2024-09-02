@@ -285,8 +285,12 @@ public class AutoComposter implements IFeature {
                 onComposterState();
                 break;
             case END:
-                if (FarmHelperConfig.autoComposterAfkInfiniteMode) {
+                if (mc.currentScreen != null) {
                     PlayerUtils.closeScreen();
+                    delayClock.schedule(1_000 + Math.random() * 500);
+                    break;
+                }
+                if (FarmHelperConfig.autoComposterAfkInfiniteMode) {
                     LogUtils.sendWarning("[Auto Composter] The macro has finished. Waiting 15 minutes for composter to empty...");
                     afkDelay.schedule(15_000 * 60);
                     enabled = false;

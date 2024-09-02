@@ -139,6 +139,12 @@ public class AutoComposter implements IFeature {
 
     @Override
     public void resetStatesAfterMacroDisabled() {
+        mainState = MainState.NONE;
+        travelState = TravelState.NONE;
+        composterState = ComposterState.NONE;
+        composterChecked = false;
+        buyState = BuyState.NONE;
+        itemsToBuy.clear();
         if (!FarmHelperConfig.autoComposterAfkInfiniteMode) return;
         FarmHelperConfig.autoComposterAfkInfiniteMode = false;
         afkDelay.reset();
@@ -466,6 +472,7 @@ public class AutoComposter implements IFeature {
                     break;
                 }
                 if (invName.contains("Composter")) {
+                    LogUtils.sendDebug("[Auto Composter] Checking Composter");
                     Slot organicMatterSlot = InventoryUtils.getSlotOfIdInContainer(37);
                     Slot fuelSlot = InventoryUtils.getSlotOfIdInContainer(43);
                     if (organicMatterSlot == null || fuelSlot == null) break;
@@ -508,7 +515,7 @@ public class AutoComposter implements IFeature {
                     if (currentFuel == -1) break;
                     int amountFuel = (maxFuel - currentFuel) / voltaFuel;
                     if (amountFuel > 0) {
-                        itemsToBuy.add(Pair.of("Volta", amountFuel)); //TODO oil barrel or volta which is cheaper
+                        itemsToBuy.add(Pair.of("Volta", amountFuel));
                     }
                     composterChecked = true;
                     PlayerUtils.closeScreen();
@@ -532,7 +539,7 @@ public class AutoComposter implements IFeature {
                 if (invName2.contains("Composter")) {
                     ContainerChest chest = (ContainerChest) mc.thePlayer.openContainer;
                     int boughtOrganicMatterSlot = InventoryUtils.getSlotIdOfItemInContainer("Box of Seeds");
-                    int boughtFuelSlot = InventoryUtils.getSlotIdOfItemInContainer("Volta"); //TODO if change to buy cheaper of volta / oil barrel
+                    int boughtFuelSlot = InventoryUtils.getSlotIdOfItemInContainer("Volta");
                     if (boughtOrganicMatterSlot != -1) {
                         InventoryUtils.clickSlotWithId(boughtOrganicMatterSlot, InventoryUtils.ClickType.LEFT, InventoryUtils.ClickMode.PICKUP, chest.windowId);
                         delayClock.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
@@ -540,6 +547,10 @@ public class AutoComposter implements IFeature {
                     if (boughtFuelSlot != -1) {
                         InventoryUtils.clickSlotWithId(boughtFuelSlot, InventoryUtils.ClickType.LEFT, InventoryUtils.ClickMode.PICKUP, chest.windowId);
                         delayClock.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
+                    }
+                    LogUtils.sendWarning("Supplied composter with resources.");
+                    if (FarmHelperConfig.logAutoComposterEvents){
+                        LogUtils.webhookLog("Supplied composter with resources.");
                     }
                     setComposterState(ComposterState.END);
                 } else {
@@ -615,7 +626,6 @@ public class AutoComposter implements IFeature {
                 })
                 .min(Comparator.comparingDouble(entity -> entity.getDistanceSqToCenter(mc.thePlayer.getPosition()))).orElse(null);
     }
-
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {

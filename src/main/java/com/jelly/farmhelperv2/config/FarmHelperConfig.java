@@ -2337,6 +2337,15 @@ public class FarmHelperConfig extends Config {
         this.addDependency("sprintWhileFlying", "enablePestsDestroyer");
         this.addDependency("pausePestsDestroyerDuringJacobsContest", "enablePestsDestroyer");
 
+        this.addDependency("pauseAutoComposterDuringJacobsContest","autoComposter");
+        this.addDependency("autoComposterMinMoney","autoComposter");
+        this.addDependency("autoComposterMaxSpendLimit","autoComposter");
+        this.addDependency("autoComposterOrganicMatterLeft","autoComposter");
+        this.addDependency("autoComposterFuelLeft","autoComposter");
+        this.addDependency("autoComposterAutosellBeforeFilling","autoComposter");
+        this.addDependency("logAutoComposterEvents","enableWebHook");
+        this.addDependency("triggerManuallyAutoComposter","autoComposter");
+
 
         this.hideIf("infoCookieBuffRequired", () -> GameStateHandler.getInstance().inGarden() || GameStateHandler.getInstance().getCookieBuffState() == BuffState.NOT_ACTIVE);
 

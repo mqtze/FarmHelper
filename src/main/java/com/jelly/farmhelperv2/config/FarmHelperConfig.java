@@ -1797,7 +1797,7 @@ public class FarmHelperConfig extends Config {
 
     //<editor-fold desc="Auto Composter">
     @Info(
-            text = "Once the Composter timer is low enough, the macro will go to the Composter and supply crops and Fuel to create compost.",
+            text = "Once the Composter timer is low enough, the macro will go to the Composter and supply crops and fuel to create compost.",
             type = InfoType.INFO,
             category = AUTO_COMPOSTER,
             subcategory = "Auto Composter",

@@ -132,6 +132,7 @@ public class AutoComposter implements IFeature {
         AutoBazaar.getInstance().stop();
         PlayerUtils.closeScreen();
         KeyBindUtils.stopMovement();
+        FlyPathFinderExecutor.getInstance().stop();
         BaritoneHandler.stopPathing();
         MacroHandler.getInstance().getCurrentMacro().ifPresent(cm -> cm.getCheckOnSpawnClock().schedule(5_000));
         IFeature.super.stop();
@@ -300,7 +301,7 @@ public class AutoComposter implements IFeature {
                     stop();
                     MacroHandler.getInstance().triggerWarpGarden(true, true, false);
                     delayClock.schedule(2_500);
-                    afkDelay.schedule(15_000 * 60);
+                    afkDelay.schedule(15_000 * 60); //if tab didnt update in time
                 }
                 break;
         }

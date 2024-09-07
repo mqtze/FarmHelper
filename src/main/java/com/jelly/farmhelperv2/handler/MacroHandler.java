@@ -529,6 +529,10 @@ public class MacroHandler {
             LogUtils.sendDebug("Activating Visitors Macro");
             VisitorsMacro.getInstance().start();
             return true;
+        } else if (AutoComposter.getInstance().canEnableMacro(false)) {
+            LogUtils.sendDebug("Activating Auto Composter");
+            AutoComposter.getInstance().start();
+            return true;
         } else if (AutoPestExchange.getInstance().canEnableMacro(false)) {
             LogUtils.sendDebug("Activating Auto Pest Hunter");
             AutoPestExchange.getInstance().start();

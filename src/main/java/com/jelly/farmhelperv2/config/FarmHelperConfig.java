@@ -1797,7 +1797,7 @@ public class FarmHelperConfig extends Config {
 
     //<editor-fold desc="Auto Composter">
     @Info(
-            text = "Once the Composter timer is low enough, the macro will go to the Composter and supply crops and Fuel to create compost.",
+            text = "Once the Composter timer is low enough, the macro will go to the Composter and supply crops and fuel to create compost.",
             type = InfoType.INFO,
             category = AUTO_COMPOSTER,
             subcategory = "Auto Composter",
@@ -2346,6 +2346,10 @@ public class FarmHelperConfig extends Config {
         this.addDependency("logAutoComposterEvents","enableWebHook");
         this.addDependency("triggerManuallyAutoComposter","autoComposter");
 
+        this.hideIf("composterX", () -> true);
+        this.hideIf("composterY", () -> true);
+        this.hideIf("composterZ", () -> true);
+
 
         this.hideIf("infoCookieBuffRequired", () -> GameStateHandler.getInstance().inGarden() || GameStateHandler.getInstance().getCookieBuffState() == BuffState.NOT_ACTIVE);
 
@@ -2405,10 +2409,6 @@ public class FarmHelperConfig extends Config {
         this.hideIf("pestExchangeDeskZ", () -> true);
 
         this.addDependency("pestRepellentType", "autoPestRepellent");
-
-        this.hideIf("composterX", () -> true);
-        this.hideIf("composterY", () -> true);
-        this.hideIf("composterZ", () -> true);
 
         this.addDependency("averageBPSDrop", "enableBpsCheck");
 

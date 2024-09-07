@@ -106,9 +106,9 @@ public class GameStateHandler {
     @Getter
     private int currentPlotPestsCount = 0;
     @Getter
-    private int organicMatterCount = 1_000_000;
+    private int organicMatterCount = Integer.MAX_VALUE;
     @Getter
-    private int fuelCount = 1_000_000;
+    private int fuelCount = Integer.MAX_VALUE;
     @Getter
     private Optional<FarmHelperConfig.CropEnum> jacobsContestCrop = Optional.empty();
     @Getter
@@ -239,8 +239,8 @@ public class GameStateHandler {
                     }
                 }
             }
-
         }
+
         if (!foundPestHunterBonus) {
             pestHunterBonus = BuffState.UNKNOWN;
         }
@@ -251,10 +251,10 @@ public class GameStateHandler {
             composterState = BuffState.UNKNOWN;
         }
         if (!foundOrganicMatterCount) {
-            organicMatterCount = 1_000_000;
+            organicMatterCount = Integer.MAX_VALUE;
         }
         if (!foundFuelCount) {
-            organicMatterCount = 1_000_000;
+            organicMatterCount = Integer.MAX_VALUE;
         }
         if (foundLocation) return;
 

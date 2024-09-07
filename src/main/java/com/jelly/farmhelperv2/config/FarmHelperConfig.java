@@ -1867,7 +1867,7 @@ public class FarmHelperConfig extends Config {
             name = "Send Webhook Log", category = AUTO_COMPOSTER, subcategory = "Auto Composter",
             description = "Logs all events related to the auto composter"
     )
-    public static boolean logAutoComposterEvents = true; //TODO it doesnt
+    public static boolean logAutoComposterEvents = true;
     @Switch(
             name = "Highlight composter location", category = AUTO_COMPOSTER, subcategory = "Auto Composter",
             description = "Highlights the composter location"

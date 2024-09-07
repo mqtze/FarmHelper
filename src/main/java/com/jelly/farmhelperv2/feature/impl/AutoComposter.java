@@ -148,8 +148,8 @@ public class AutoComposter implements IFeature {
         itemsToBuy.clear();
         if (!FarmHelperConfig.autoComposterAfkInfiniteMode) return;
         FarmHelperConfig.autoComposterAfkInfiniteMode = false;
-        LogUtils.sendWarning("[Auto Composter] AFK Mode has been disabled");
         afkDelay.reset();
+        LogUtils.sendWarning("[Auto Composter] AFK Mode has been disabled");
     }
 
     @Override

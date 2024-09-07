@@ -1019,7 +1019,7 @@ public class FarmHelperConfig extends Config {
     public static boolean visitorsExchangeTravelMethodInfo;
     @DualOption(
             name = "Travel method", category = VISITORS_MACRO, subcategory = "Visitors Macro",
-            description = "The travel method to use to get to the pest exchange desk",
+            description = "The travel method to use to get to the visitor stand",
             left = "Fly",
             right = "Walk"
     )
@@ -1479,6 +1479,12 @@ public class FarmHelperConfig extends Config {
             right = "Walk"
     )
     public static boolean autoPestExchangeTravelMethod = false;
+    @Number(
+            name = "Teleport to plot", category = AUTO_PEST_EXCHANGE, subcategory = "Auto Pest Exchange",
+            description = "The plot to tp to to get to the pest exchange desk (0 = barn)",
+            min = 0, max = 24
+    )
+    public static int autoPestExchangeTpToPlot = 0;
     @Info(
             text = "If you have any issues, try switching the travel method.",
             type = InfoType.INFO,

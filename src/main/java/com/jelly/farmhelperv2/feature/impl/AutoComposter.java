@@ -549,6 +549,7 @@ public class AutoComposter implements IFeature {
                     if (boughtOrganicMatterSlot != -1) {
                         InventoryUtils.clickSlotWithId(boughtOrganicMatterSlot, InventoryUtils.ClickType.LEFT, InventoryUtils.ClickMode.PICKUP, chest.windowId);
                         delayClock.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
+                        break;
                     }
                     if (boughtFuelSlot != -1) {
                         InventoryUtils.clickSlotWithId(boughtFuelSlot, InventoryUtils.ClickType.LEFT, InventoryUtils.ClickMode.PICKUP, chest.windowId);

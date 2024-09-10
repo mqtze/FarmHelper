@@ -187,13 +187,16 @@ public class AutoComposter implements IFeature {
         if (!PlayerUtils.isInBarn()) return;
         if (isRunning()) return;
         if (!afkDelay.passed()) return;
-        if (canEnableMacro(true)) {
+        if (canEnableMacro(true, true)) {
             manuallyStarted = true;
             start();
         }
     }
 
-    public boolean canEnableMacro(boolean manual) {
+    public boolean canEnableMacro(boolean manual){
+        return canEnableMacro(manual,false);
+    }
+    public boolean canEnableMacro(boolean manual, boolean afkMode) {
         if (!isToggled()) return false;
         if (isRunning()) return false;
         if (!GameStateHandler.getInstance().inGarden()) return false;
@@ -225,17 +228,19 @@ public class AutoComposter implements IFeature {
             return false;
         }
 
-        if (GameStateHandler.getInstance().getComposterState() != GameStateHandler.BuffState.NOT_ACTIVE) {
+        if ((!manual || afkMode) && GameStateHandler.getInstance().getComposterState() != GameStateHandler.BuffState.NOT_ACTIVE) {
             int organicMatterLeft = GameStateHandler.getInstance().getOrganicMatterCount();
             int fuelLeft = GameStateHandler.getInstance().getFuelCount();
-            if (!(organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) && !(fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
-                LogUtils.sendWarning("[Auto Composter] Composter is active or unknown, skipping...");
-                if (FarmHelperConfig.autoComposterAfkInfiniteMode){
-                    LogUtils.sendDebug("[Auto Composter] Waiting 15 minutes for composter to empty...");
-                    afkDelay.schedule(15_000 * 60);
-                }
-                return false;
+            if ((organicMatterLeft < FarmHelperConfig.autoComposterOrganicMatterLeft) || (fuelLeft < FarmHelperConfig.autoComposterFuelLeft)) {
+                return true;
             }
+            LogUtils.sendWarning("[Auto Composter] Composter is active or unknown, skipping...");
+            if (FarmHelperConfig.autoComposterAfkInfiniteMode) {
+                LogUtils.sendDebug("[Auto Composter] Waiting 15 minutes for composter to empty...");
+                afkDelay.schedule(15_000 * 60);
+            }
+            return false;
+
         }
 
         return true;
@@ -556,7 +561,7 @@ public class AutoComposter implements IFeature {
                         delayClock.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
                     }
                     LogUtils.sendWarning("Supplied composter with resources.");
-                    if (FarmHelperConfig.logAutoComposterEvents){
+                    if (FarmHelperConfig.logAutoComposterEvents) {
                         LogUtils.webhookLog("Supplied composter with resources.");
                     }
                     setComposterState(ComposterState.END);

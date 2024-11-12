@@ -23,6 +23,7 @@ import com.jelly.farmhelperv2.handler.MacroHandler;
 import com.jelly.farmhelperv2.hud.DebugHUD;
 import com.jelly.farmhelperv2.hud.ProfitCalculatorHUD;
 import com.jelly.farmhelperv2.hud.StatusHUD;
+import com.jelly.farmhelperv2.hud.ImageHUD;
 import com.jelly.farmhelperv2.util.BlockUtils;
 import com.jelly.farmhelperv2.util.LogUtils;
 import com.jelly.farmhelperv2.util.PlayerUtils;
@@ -1984,6 +1985,11 @@ public class FarmHelperConfig extends Config {
             name = "Profit Calculator HUD - Visual Settings", category = HUD, subcategory = " "
     )
     public static ProfitCalculatorHUD profitHUD = new ProfitCalculatorHUD();
+
+    @HUD(
+            name = "Image HUD - Visual Settings", category = HUD, subcategory = "  "
+    )
+    public static ImageHUD imageHUD = new ImageHUD();
     //</editor-fold>
 
     //<editor-fold desc="DEBUG">

@@ -174,7 +174,7 @@ public class BedrockCageFailsafe extends Failsafe {
                 break;
             case SEND_MESSAGE_1:
                 LogUtils.sendDebug("[Failsafe] Chosen message: " + randomMessage);
-                mc.thePlayer.sendChatMessage("/ac " + randomMessage);
+                mc.thePlayer.sendChatMessage(randomMessage);
                 FailsafeManager.getInstance().swapItemDuringRecording = Math.random() < 0.2;
                 bedrockCageCheckState = BedrockCageCheckState.LOOK_AROUND_2;
                 FailsafeManager.getInstance().scheduleRandomDelay(300, 600);
@@ -214,7 +214,7 @@ public class BedrockCageFailsafe extends Failsafe {
                 break;
             case SEND_MESSAGE_2:
                 LogUtils.sendDebug("[Failsafe] Chosen message: " + randomContinueMessage);
-                mc.thePlayer.sendChatMessage("/ac " + randomContinueMessage);
+                mc.thePlayer.sendChatMessage(randomContinueMessage);
                 bedrockCageCheckState = BedrockCageCheckState.WAIT_UNTIL_TP_BACK;
                 break;
             case WAIT_UNTIL_TP_BACK:

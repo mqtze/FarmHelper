@@ -156,7 +156,7 @@ public class DirtFailsafe extends Failsafe {
                 if (MovRecPlayer.getInstance().isRunning())
                     break;
                 LogUtils.sendDebug("[Failsafe] Chosen message: " + randomMessage);
-                mc.thePlayer.sendChatMessage("/ac " + randomMessage);
+                mc.thePlayer.sendChatMessage(randomMessage);
                 dirtCheckState = DirtCheckState.KEEP_PLAYING;
                 FailsafeManager.getInstance().scheduleRandomDelay(500, 1000);
                 break;

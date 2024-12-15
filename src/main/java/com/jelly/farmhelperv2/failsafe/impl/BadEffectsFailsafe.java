@@ -153,7 +153,7 @@ public class BadEffectsFailsafe extends Failsafe {
                 break;
             case SEND_MESSAGE:
                 LogUtils.sendDebug("[Failsafe] Chosen message: " + randomMessage);
-                mc.thePlayer.sendChatMessage("/ac " + randomMessage);
+                mc.thePlayer.sendChatMessage(randomMessage);
                 badEffectsState = BadEffectsState.ROTATE_TO_POS_BEFORE;
                 FailsafeManager.getInstance().scheduleRandomDelay(500, 1000);
                 break;
@@ -198,7 +198,7 @@ public class BadEffectsFailsafe extends Failsafe {
                 break;
             case SEND_MESSAGE_2:
                 LogUtils.sendDebug("[Failsafe] Chosen message: " + randomContinueMessage);
-                mc.thePlayer.sendChatMessage("/ac " + randomContinueMessage);
+                mc.thePlayer.sendChatMessage(randomContinueMessage);
                 badEffectsState = BadEffectsState.GO_BACK_START;
                 FailsafeManager.getInstance().scheduleRandomDelay(500, 1000);
                 break;

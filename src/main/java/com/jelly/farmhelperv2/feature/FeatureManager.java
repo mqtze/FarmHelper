@@ -33,6 +33,7 @@ public class FeatureManager {
                 AutoPestExchange.getInstance(),
                 AutoRepellent.getInstance(),
                 AutoSell.getInstance(),
+                AutoTrap.getInstance(),
                 BanInfoWS.getInstance(),
                 BPSTracker.getInstance(),
                 DesyncChecker.getInstance(),
@@ -52,8 +53,8 @@ public class FeatureManager {
                 PiPMode.getInstance(),
                 UsageStatsTracker.getInstance(),
                 UsageStatsTracker.getInstance(),
-                AutoWardrobe.instance,
-                PestFarmer.instance// sue me
+                AutoWardrobe.getInstance(),
+                PestFarmer.getInstance()// sue me // did
         );
         features.addAll(featuresList);
         return features;
@@ -118,10 +119,13 @@ public class FeatureManager {
         if (AutoPestExchange.getInstance().isRunning() && !AutoPestExchange.getInstance().shouldCheckForFailsafes()) {
             return true;
         }
-        if (PestFarmer.instance.isRunning() && !PestFarmer.instance.shouldCheckForFailsafes()) {
+        if (PestFarmer.getInstance().isRunning() && !PestFarmer.getInstance().shouldCheckForFailsafes()) {
             return true;
         }
         if (AutoComposter.getInstance().isRunning() && !AutoComposter.getInstance().shouldCheckForFailsafes()) {
+            return true;
+        }
+        if (AutoTrap.getInstance().isRunning() && !AutoTrap.getInstance().shouldCheckForFailsafes()) {
             return true;
         }
         return false;

@@ -51,6 +51,7 @@ public class GameStateHandler {
     private final Pattern serverClosingPattern = Pattern.compile("Server closing: (?<minutes>\\d+):(?<seconds>\\d+) .*");
     private final Pattern pestsFromVacuumPattern = Pattern.compile("Vacuum Bag: ([\\d,]+) Pest(s)?");
     private final Pattern composterResourceTablistPattern = Pattern.compile("\\s(Organic Matter|Fuel): (\\d{1,3}(\\.\\d{1,3})?)k");
+    private final Pattern trapTablistPattern = Pattern.compile("\\s(Full Traps|No Bait):\\s(None|#\\d(?:,\\s#\\d){0,2})");
     @Getter
     private Location lastLocation = Location.TELEPORTING;
     @Getter
@@ -111,6 +112,13 @@ public class GameStateHandler {
     private int organicMatterCount = Integer.MAX_VALUE;
     @Getter
     private int fuelCount = Integer.MAX_VALUE;
+    @Getter
+    private int trapsFull = 0;
+    @Getter
+    private int trapsNoBait = 0;
+    @Getter
+    @Setter
+    private long lastTrapChange = 0;
     @Getter
     private Optional<FarmHelperConfig.CropEnum> jacobsContestCrop = Optional.empty();
     @Getter
@@ -248,6 +256,31 @@ public class GameStateHandler {
                     } else if (resource.equalsIgnoreCase("Fuel")) {
                         fuelCount = (int) (Double.parseDouble(count) * 1_000);
                         foundFuelCount = true;
+                    }
+                }
+            }
+            if (cleanedLine.matches(trapTablistPattern.pattern())) {
+                Matcher matcher = trapTablistPattern.matcher(cleanedLine);
+                if (matcher.find()) {
+                    String label = matcher.group(1);
+                    String value = matcher.group(2);
+
+                    int count = 0;
+                    if (!value.equalsIgnoreCase("None")) {
+                        String[] traps = value.split(",");
+                        count = traps.length;
+                    }
+
+                    if (label.equalsIgnoreCase("Full Traps")) {
+                        if (trapsFull != count) {
+                            trapsFull = count;
+                            lastTrapChange = System.currentTimeMillis();
+                        }
+                    } else if (label.equalsIgnoreCase("No Bait")) {
+                        if (trapsNoBait != count) {
+                            trapsNoBait = count;
+                            lastTrapChange = System.currentTimeMillis();
+                        }
                     }
                 }
             }

@@ -73,7 +73,9 @@ public class PestsDestroyer implements IFeature {
             new Tuple<>("Rat",
                     "ewogICJ0aW1lc3RhbXAiIDogMTYxODQxOTcwMTc1MywKICAicHJvZmlsZUlkIiA6ICI3MzgyZGRmYmU0ODU0NTVjODI1ZjkwMGY4OGZkMzJmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJCdUlJZXQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYThhYmI0NzFkYjBhYjc4NzAzMDExOTc5ZGM4YjQwNzk4YTk0MWYzYTRkZWMzZWM2MWNiZWVjMmFmOGNmZmU4IiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0="),
             new Tuple<>("Slug",
-                    "ewogICJ0aW1lc3RhbXAiIDogMTY5NzQ3MDQ0MzA4MiwKICAicHJvZmlsZUlkIiA6ICJkOGNkMTNjZGRmNGU0Y2IzODJmYWZiYWIwOGIyNzQ4OSIsCiAgInByb2ZpbGVOYW1lIiA6ICJaYWNoeVphY2giLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E3OWQwZmQ2NzdiNTQ1MzA5NjExMTdlZjg0YWRjMjA2ZTJjYzUwNDVjMTM0NGQ2MWQ3NzZiZjhhYzJmZTFiYSIKICAgIH0KICB9Cn0")
+                    "ewogICJ0aW1lc3RhbXAiIDogMTY5NzQ3MDQ0MzA4MiwKICAicHJvZmlsZUlkIiA6ICJkOGNkMTNjZGRmNGU0Y2IzODJmYWZiYWIwOGIyNzQ4OSIsCiAgInByb2ZpbGVOYW1lIiA6ICJaYWNoeVphY2giLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E3OWQwZmQ2NzdiNTQ1MzA5NjExMTdlZjg0YWRjMjA2ZTJjYzUwNDVjMTM0NGQ2MWQ3NzZiZjhhYzJmZTFiYSIKICAgIH0KICB9Cn0"),
+            new Tuple<>("Field Mouse",
+                    "ewogICJ0aW1lc3RhbXAiIDogMTcyNzkwNDc5NzQ1OSwKICAicHJvZmlsZUlkIiA6ICI0MmIwOTMyZDUwMWI0MWQ1YTM4YjEwOTcxYTYwYmYxMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJBaXJib2x0MDc4IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2YzNzllMDkyNTI4MTczMTRiZDBiNjk0ZjdkNTNiNDhhZjJjN2ZhODQ5OTEwOTgwMmE0MWJiMjk0ZDJmOTNlM2UiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==")
     );
     private Optional<PlotUtils.Plot> closestPlot = Optional.empty();
     @Getter
@@ -510,13 +512,13 @@ public class PestsDestroyer implements IFeature {
                         currentSlot = FarmHelperConfig.pestArmorSlot1;
                     }
                     if (AutoWardrobe.activeSlot != currentSlot) {
-                        AutoWardrobe.instance.swapTo(currentSlot, FarmHelperConfig.pestSwapEquipments ? Arrays.asList(FarmHelperConfig.pestSwapEq.split("\\|")) : Collections.emptyList());
+                        AutoWardrobe.getInstance().swapTo(currentSlot, FarmHelperConfig.pestSwapEquipments ? Arrays.asList(FarmHelperConfig.pestSwapEq.split("\\|")) : Collections.emptyList());
                     }
                 }
                 state = States.ARMOR_SWAP_VERIFY;
                 break;
             case ARMOR_SWAP_VERIFY:
-                if (AutoWardrobe.instance.isRunning()) {
+                if (AutoWardrobe.getInstance().isRunning()) {
                     return;
                 }
                 if (finishing) {
@@ -1175,7 +1177,7 @@ public class PestsDestroyer implements IFeature {
             FlyPathFinderExecutor.getInstance().stop();
         }
         // bad macro design - loser
-        if (!PestFarmer.instance.isRunning() && MacroHandler.getInstance().isMacroToggled()) {
+        if (!PestFarmer.getInstance().isRunning() && MacroHandler.getInstance().isMacroToggled()) {
             stop();
             MacroHandler.getInstance().triggerWarpGarden(true, true, false);
             delayClock.schedule(2_000 + Math.random() * 500);

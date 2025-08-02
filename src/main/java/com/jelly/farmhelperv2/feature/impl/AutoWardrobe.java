@@ -8,6 +8,7 @@ import com.jelly.farmhelperv2.util.InventoryUtils.ClickType;
 import com.jelly.farmhelperv2.util.LogUtils;
 import com.jelly.farmhelperv2.util.PlayerUtils;
 import com.jelly.farmhelperv2.util.helper.Clock;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.inventory.ContainerChest;
@@ -17,12 +18,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+
 import java.util.List;
 import java.util.ArrayList;
 
 public class AutoWardrobe implements IFeature {
 
-    public static AutoWardrobe instance = new AutoWardrobe();
+    private static AutoWardrobe instance;
+
+    public static AutoWardrobe getInstance() {
+        if (instance == null) {
+            instance = new AutoWardrobe();
+        }
+        return instance;
+    }
+
     public static int activeSlot = -1;
     private final Minecraft mc = Minecraft.getMinecraft();
     private boolean enabled = false;
@@ -30,6 +40,10 @@ public class AutoWardrobe implements IFeature {
     private int invStart = 54;
     private int invEnd = 54;
     private List<String> equipmentsToSwapTo = new ArrayList<>();
+    @Setter
+    private boolean reequipIfEquipped = false;
+    @Setter
+    private boolean allowUnequip = false;
     private State state = State.STARTING;
     private Clock timer = new Clock();
 
@@ -79,8 +93,8 @@ public class AutoWardrobe implements IFeature {
     }
 
     public void swapTo(int slot, List<String> equipments) {
-        if (slot< 1 || slot > 18) {
-            return;   
+        if (slot < 1 || slot > 18) {
+            return;
         }
         swapTo = slot;
         equipmentsToSwapTo = new ArrayList(equipments);
@@ -98,6 +112,8 @@ public class AutoWardrobe implements IFeature {
         invStart = 54;
         invEnd = 54;
         equipmentsToSwapTo.clear();
+        reequipIfEquipped = false;
+        allowUnequip = false;
         state = State.STARTING;
         timer.reset();
 
@@ -179,12 +195,29 @@ public class AutoWardrobe implements IFeature {
                 Slot slot = InventoryUtils.getSlotOfIdInContainer(slotId);
                 if (slot != null && slot.getHasStack()) {
                     ItemStack stack = slot.getStack();
-                    // remove this to make it unequip armor (click the same slot)
-                    if (stack.hasDisplayName() && !stack.getDisplayName().contains("Equipped") && !stack.getDisplayName().contains("Locked")) {
-                        InventoryUtils.clickContainerSlot(35 + (swapTo - 1) % 9 + 1, ClickType.LEFT, ClickMode.PICKUP);
+                    boolean hasName = stack.hasDisplayName();
+                    boolean isEquipped = hasName && stack.getDisplayName().contains("Equipped");
+                    boolean isLocked = hasName && stack.getDisplayName().contains("Locked");
+                    if (!isLocked) {
+                        if (!isEquipped) {
+                            InventoryUtils.clickContainerSlot(slotId, ClickType.LEFT, ClickMode.PICKUP);
+                            activeSlot = swapTo;
+                            setState(State.WAITING, FarmHelperConfig.getRandomGUIMacroDelay());
+                            return;
+                        } else {
+                            if (reequipIfEquipped){
+                                InventoryUtils.clickContainerSlot(slotId, ClickType.LEFT, ClickMode.PICKUP);
+                                setState(State.CLICKING_SLOT, FarmHelperConfig.getRandomGUIMacroDelay());
+                                return;
+                            } else if (allowUnequip) {
+                                InventoryUtils.clickContainerSlot(slotId, ClickType.LEFT, ClickMode.PICKUP);
+                                activeSlot = -1;
+                                setState(State.WAITING, FarmHelperConfig.getRandomGUIMacroDelay());
+                                return;
+                            }
+                        }
                     }
                 }
-                activeSlot = swapTo;
                 setState(State.WAITING, FarmHelperConfig.getRandomGUIMacroDelay());
                 break;
             // this is just here to give a bit extra pause before it stops
@@ -239,11 +272,11 @@ public class AutoWardrobe implements IFeature {
                 setState(State.WAITING, FarmHelperConfig.getRandomGUIMacroDelay());
                 break;
             case ENDING:
-              if (isTimerRunning()) {
-                return;
-              }
-              stop();
-              break;
+                if (isTimerRunning()) {
+                    return;
+                }
+                stop();
+                break;
         }
     }
 

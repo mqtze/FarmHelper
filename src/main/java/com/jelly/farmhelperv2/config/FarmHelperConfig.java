@@ -60,6 +60,7 @@ public class FarmHelperConfig extends Config {
     private transient static final String AUTO_REPELLENT = "Auto Repellent";
     private transient static final String AUTO_SPRAYONATOR = "Auto Sprayonator";
     private transient static final String AUTO_COMPOSTER = "Auto Composter";
+    private transient static final String AUTO_TRAP = "Auto Trap";
     private transient static final String DISCORD_INTEGRATION = "Discord Integration";
     private transient static final String DELAYS = "Delays";
     private transient static final String HUD = "HUD";
@@ -1439,8 +1440,8 @@ public class FarmHelperConfig extends Config {
     public static boolean pestSwapEquipments = false;
 
     @Text(
-        name = "Pest Swap Equipments", category = PESTS_DESTROYER, subcategory = "Armor Swapper", size=2,
-        description = "Separate Equipment Names With |", placeholder = "Pesthunter's Necklace|Pesthunter's Cloak|Pesthunter's Belt"
+            name = "Pest Swap Equipments", category = PESTS_DESTROYER, subcategory = "Armor Swapper", size = 2,
+            description = "Separate Equipment Names With |", placeholder = "Pesthunter's Necklace|Pesthunter's Cloak|Pesthunter's Belt"
     )
     public static String pestSwapEq = "";
 
@@ -1552,47 +1553,47 @@ public class FarmHelperConfig extends Config {
     public static int pestFarmingWaitTime = 255;
 
     @Switch(
-        name = "Set Spawn After Armor Swap(Read Desc)", category = PEST_FARMER,
-        description = "Sets spawn after swapping armor. Sicne farmhelper does not have anything to farm shards, use this to kill manually while ensuring macro returns back to spawn automacially."
+            name = "Set Spawn After Armor Swap(Read Desc)", category = PEST_FARMER,
+            description = "Sets spawn after swapping armor. Sicne farmhelper does not have anything to farm shards, use this to kill manually while ensuring macro returns back to spawn automacially."
     )
     public static boolean pestFarmingSetSpawn = false;
 
     @Switch(
-        name = "Swap Equipments", category = PEST_FARMER
+            name = "Swap Equipments", category = PEST_FARMER
     )
     public static boolean pestFarmingSwapEq = false;
 
     @Text(
-        name = "Farming Fortune Equipments", category = PEST_FARMER, size=2,
-        description = "Separate Equipment Names With |", placeholder = "Ex: Lotus Necklace|Lotus Cloak|Lotus Belt|Lotus Bracelet"
+            name = "Farming Fortune Equipments", category = PEST_FARMER, size = 2,
+            description = "Separate Equipment Names With |", placeholder = "Ex: Lotus Necklace|Lotus Cloak|Lotus Belt|Lotus Bracelet"
     )
     public static String pestFarmingEq0 = "";
 
     @Text(
-        name = "Pest Chance Equipments", category = PEST_FARMER, size=2,
-        description = "Separate Equipment Names With |", placeholder = "Ex: Pesthunter's Necklace|Pesthunter's Belt|Pesthunter's Gloves|Pest Vest"
+            name = "Pest Chance Equipments", category = PEST_FARMER, size = 2,
+            description = "Separate Equipment Names With |", placeholder = "Ex: Pesthunter's Necklace|Pesthunter's Belt|Pesthunter's Gloves|Pest Vest"
     )
     public static String pestFarmingEq1 = "";
 
     @Slider(
-        name = "Equipment Click Delay", category = PEST_FARMER,
-        min = 300, max = 2000, step = 10
+            name = "Equipment Click Delay", category = PEST_FARMER,
+            min = 300, max = 2000, step = 10
     )
     public static int pestFarmerEquipmentClickDelay = 400;
 
     @Switch(
-        name = "Start Pests Destroyer During Farming", category = PEST_FARMER
+            name = "Start Pests Destroyer During Farming", category = PEST_FARMER
     )
     public static boolean pestFarmerKillPests = false;
 
     @Switch(
-        name = "Cast Rod After Killing", category = PEST_FARMER
+            name = "Cast Rod After Killing", category = PEST_FARMER
     )
     public static boolean pestFarmerCastRod = false;
 
     @Slider(
-        name = "Pest Count to Start Killing At", category = PEST_FARMER,
-        min = 1, max = 8
+            name = "Pest Count to Start Killing At", category = PEST_FARMER,
+            min = 1, max = 8
     )
     public static int pestFarmerStartKillAt = 1;
 
@@ -2204,6 +2205,242 @@ public class FarmHelperConfig extends Config {
     public static boolean autoComposterInfo2;
     //</editor-fold>
 
+
+    //<editor-fold desc="Auto Trap">
+    @Switch(
+            name = "Enable Auto Trap", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Automatically empties the pest traps"
+    )
+    public static boolean autoTrap = false;
+    @Number(
+            name = "Teleport to plot", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "place the traps around the spawn of this plot",
+            min = 1, max = 24
+    )
+    public static int autoTrapPlot = 1;
+    @Switch(
+            name = "Pause Auto Trap during Jacob's contests", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Pauses Auto Trap during Jacob's contests"
+    )
+    public static boolean pauseAutoTrapDuringJacobsContest = false;
+
+    @DualOption(
+            name = "Travel method", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "The travel method to use to get to the traps",
+            left = "Fly",
+            right = "Walk"
+    )
+    public static boolean autoTrapTravelMethod = false;
+    @Info(
+            text = "If you have any issues, try switching the travel method.",
+            type = InfoType.INFO,
+            category = AUTO_TRAP,
+            subcategory = "Auto Trap",
+            size = 2
+    )
+    public static boolean autoTrapTravelMethodInfo;
+
+    @Switch(
+            name = "Autosell before emptying trap", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Automatically sells crops before emptying trap"
+    )
+    public static boolean autoTrapAutosell = false;
+
+    @Switch(
+            name = "Send Webhook Log", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Logs all events related to Auto Trap"
+    )
+    public static boolean logAutoTrapEvents = true;
+    @Switch(
+            name = "Highlight Trap location", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Highlights the Trap location"
+    )
+    public static boolean highlightTrapLocation = true;
+    @Info(
+            text = "Auto Trap will start automatically once you rewarp!",
+            type = InfoType.WARNING,
+            category = AUTO_TRAP,
+            subcategory = "Auto Trap",
+            size = 2
+    )
+    public static boolean autoTrapInfo;
+
+    @Button(
+            name = "Trigger now Auto Trap", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Triggers auto Trap manually",
+            text = "Trigger now"
+    )
+    public static void triggerManuallyAutoTrap() {
+        AutoTrap.getInstance().setManuallyStarted(true);
+        AutoTrap.getInstance().start();
+    }
+
+    @Button(
+            name = "Set the Trap location", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Sets the Trap location",
+            text = "Set trap"
+    )
+    public static Runnable setAutoTrapLocation = () -> {
+        autoTrapX = mc.thePlayer.getPosition().getX();
+        autoTrapY = mc.thePlayer.getPosition().getY();
+        autoTrapZ = mc.thePlayer.getPosition().getZ();
+        LogUtils.sendSuccess("[Auto Trap] Set the Trap location to "
+                + FarmHelperConfig.autoTrapX + ", "
+                + FarmHelperConfig.autoTrapY + ", "
+                + FarmHelperConfig.autoTrapZ);
+    };
+
+    @Button(
+            name = "Reset the Trap location", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Resets the trap location",
+            text = "Reset Trap"
+    )
+    public static Runnable resetTrapLocation = () -> {
+        autoTrapX = 0;
+        autoTrapY = 0;
+        autoTrapZ = 0;
+        LogUtils.sendSuccess("[Auto Trap] Reset the Trap location");
+    };
+
+    @Number(
+            name = "Trap X", category = AUTO_TRAP, subcategory = "Auto Trap",
+            min = -300, max = 300
+    )
+    public static int autoTrapX = 0;
+    @Number(
+            name = "Trap Y", category = AUTO_TRAP, subcategory = "Auto Trap",
+            min = 50, max = 150
+    )
+    public static int autoTrapY = 0;
+    @Number(
+            name = "Trap Z", category = AUTO_TRAP, subcategory = "Auto Trap",
+            min = -300, max = 300
+    )
+    public static int autoTrapZ = 0;
+
+    @Switch(
+            name = "Selective Emptying", category = AUTO_TRAP, subcategory = "Selective Emptying",
+            description = "choose which pests to collect in the traps to clear when a contest of that type is active"
+    )
+    public static boolean autoTrapSelectiveEmpty = false;
+
+
+    @Dropdown(
+            name = "Pest Type", category = AUTO_TRAP, subcategory = "Selective Emptying",
+            description = "Pest to save",
+            options = {
+                    "Earthworm (Melon)",
+                    "Mosquito (Sugar Cane)",
+                    "Moth (Cocoa Beans)",
+                    "Cricket (Carrot)",
+                    "Beetle (Nether Wart)",
+                    "Fly (Wheat)",
+                    "Locust (Potato)",
+                    "Slug (Mushroom)",
+                    "Rat (Pumpkin)",
+                    "Mite (Cactus)",
+                    "Field Mouse"
+            }
+    )
+    public static int autoTrapSelectiveEmptySavePest = 0;
+
+    @Switch(
+            name = "Refill Bait", category = AUTO_TRAP, subcategory = "Refill",
+            description = "Whether or not to refill bait"
+    )
+    public static boolean autoTrapRefill = false;
+
+    @Dropdown(
+            name = "Bait Type", category = AUTO_TRAP, subcategory = "Refill",
+            description = "Bait to refill traps with (will prioritize bait in trap, so only for when bait is empty)",
+            options = {
+                    "Compost (Earthworm & Mosquito)",
+                    "Honey Jar (Moth & Cricket)",
+                    "Dung (Beetle & Fly)",
+                    "Plant Matter (Locust & Slug)",
+                    "Tasty Cheese (Rat & Mite)"
+            }
+    )
+    public static int autoTrapRefillMaterial = 0;
+
+    @Number(
+            name = "Bait left to start refill", category = AUTO_TRAP, subcategory = "Refill",
+            description = "Amount of bait left to refill",
+            min = 0, max = 63
+    )
+    public static int autoTrapRefillAtMaterialLeft = 3;
+
+    @Number(
+            name = "To what amount of bait to refill", category = AUTO_TRAP, subcategory = "Refill",
+            description = "Amount of bait left to refill",
+            min = 0, max = 64
+    )
+    public static int autoTrapRefillToMaterial = 64;
+
+    @Switch(
+            name = "Dont refill during contest", category = AUTO_TRAP, subcategory = "Refill",
+            description = "Disable refilling bait during Jacob's Contests"
+    )
+    public static boolean autoTrapDontRefillDuringContest = true;
+
+    @Slider(
+            name = "Max Spend Limit (in Millions Per Purchase)", category = AUTO_TRAP, subcategory = "Refill",
+            min = 0.2f, max = 7.5f
+    )
+    public static float autoTrapMaxSpendLimit = 0.7f;
+
+    @Switch(
+            name = "TP only", category = AUTO_TRAP, subcategory = "Auto Trap",
+            description = "Whether or not to only tp to designated plot and rotate"
+    )
+    public static boolean autoTrapTpOnly = true;
+
+    @Dropdown(
+            name = "Pet Swap", category = AUTO_TRAP, subcategory = "Gear Swap",
+            description = "Mode to use",
+            options = {
+                    "Disabled",
+                    "Armor Swap",
+                    "Rod Swap"
+//                    ,"Pet Swap"
+            }
+    )
+    public static int autoTrapPetSwapMode = 0;
+
+    @Text(
+            name = "Equipments To Swap To Before Emptying", category = AUTO_TRAP, subcategory = "Gear Swap", size = 2,
+            description = "Separate Equipment Names With |", placeholder = "Ex: Lotus Necklace|Lotus Cloak|Lotus Belt|Lotus Bracelet"
+    )
+    public static String autoTrapEqBefore = "Lotus Necklace|Lotus Cloak|Lotus Belt|Lotus Bracelet";
+
+    @Text(
+            name = "Equipments To Swap To After Emptying", category = AUTO_TRAP, subcategory = "Gear Swap", size = 2,
+            description = "Separate Equipment Names With |", placeholder = "Ex: Pesthunter's Necklace|Pesthunter's Belt|Pesthunter's Gloves|Pest Vest"
+    )
+    public static String autoTrapEqAfter = "Pesthunter's Necklace|Pesthunter's Belt|Pesthunter's Gloves|Pest Vest";
+
+    @Slider(
+            name = "Armor To Swap To Before Emptying", category = AUTO_TRAP, subcategory = "Gear Swap",
+            min = 1, max = 18
+    )
+    public static int autoTrapArmorBefore = 1;
+
+    @Slider(
+            name = "Armor To Swap To After Emptying", category = AUTO_TRAP, subcategory = "Gear Swap",
+            min = 1, max = 18
+    )
+    public static int autoTrapArmorAfter = 1;
+    @Info(
+            text = "Will reequip Armor if already equipped to trigger Pet-Rule",
+            type = InfoType.INFO,
+            category = AUTO_TRAP,
+            subcategory = "Gear Swap",
+            size = 2
+    )
+    public static boolean autoTrapArmorInfo;
+    //</editor-fold>
+
+
     //<editor-fold desc="DELAYS">
     //<editor-fold desc="Changing Rows">
     @Slider(
@@ -2400,27 +2637,27 @@ public class FarmHelperConfig extends Config {
     )
     public static ProfitCalculatorHUD profitHUD = new ProfitCalculatorHUD();
     @Switch(
-            name      = "Colour-code 24-hour total",
+            name = "Colour-code 24-hour total",
             description = "Green < 3.5 h, 3.5 h < Orange < 7 h, Red ≥ 7 h",
-            category  = HUD,
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean colourCode24H = true;
     @Switch(
-            name      = "Show 24-hour total",
-            category  = HUD,
+            name = "Show 24-hour total",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean showStats24H = true;
     @Switch(
-            name       = "Show 7-day total",
-            category   = HUD,
+            name = "Show 7-day total",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean showStats7D = false;
     @Switch(
-            name       = "Enable Long Term Data Storage",
-            category   = HUD,
+            name = "Enable Long Term Data Storage",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean longTermUserStats = false;
@@ -2433,20 +2670,20 @@ public class FarmHelperConfig extends Config {
     )
     public static boolean usageStatsInfo;
     @Switch(
-            name       = "Show 30-day total",
-            category   = HUD,
+            name = "Show 30-day total",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean showStats30D = false;
     @Switch(
-            name      = "Show lifetime total",
-            category  = HUD,
+            name = "Show lifetime total",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean showStatsLifetime = true;
     @Switch(
-            name      = "Show FH Usage Stats Title",
-            category  = HUD,
+            name = "Show FH Usage Stats Title",
+            category = HUD,
             subcategory = "Usage Stats"
     )
     public static boolean showStatsTitle = false;
@@ -2481,7 +2718,7 @@ public class FarmHelperConfig extends Config {
     public static boolean debugMode = false;
 
     @Switch(
-        name = "New Fly", category = DEBUG
+            name = "New Fly", category = DEBUG
     )
     public static boolean debugNewFly = true;
 
@@ -2743,6 +2980,16 @@ public class FarmHelperConfig extends Config {
         this.addDependency("pestSwapEq", "pestSwapEquipments");
         this.addDependency("pestFarmerCastRod", "pestFarmerKillPests");
 
+        // if anyone wants to implement a non tp only mode
+        this.hideIf("autoTrapTravelMethod", () -> true);
+        this.hideIf("autoTrapTravelMethodInfo", () -> true);
+        this.hideIf("autoTrapTpOnly", () -> true);
+
+        this.addDependency("logAutoTrapEvents", "enableWebHook");
+        this.hideIf("autoTrapX", () -> true);
+        this.hideIf("autoTrapY", () -> true);
+        this.hideIf("autoTrapZ", () -> true);
+
         this.addDependency("leaveTime", "leaveTimer");
 
         this.addDependency("showStats30D", "longTermUserStats");
@@ -2776,7 +3023,7 @@ public class FarmHelperConfig extends Config {
             while (!infestedPlots.isEmpty()) {
                 int curr = infestedPlots.get(0);
                 if (curr == GameStateHandler.getInstance().getCurrentPlot()
-                    && GameStateHandler.getInstance().getPestsCount() == 0) {
+                        && GameStateHandler.getInstance().getPestsCount() == 0) {
                     infestedPlots.remove(0);
                     continue;
                 }

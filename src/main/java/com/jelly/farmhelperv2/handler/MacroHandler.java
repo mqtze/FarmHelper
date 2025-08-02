@@ -148,6 +148,10 @@ public class MacroHandler {
                 AutoPestExchange.getInstance().stop();
                 return;
             }
+            if (AutoTrap.getInstance().isRunning()) {
+                AutoTrap.getInstance().stop();
+                return;
+            }
             if (PlayerUtils.isInBarn()) {
                 if (VisitorsMacro.getInstance().isToggled()) {
                     VisitorsMacro.getInstance().setManuallyStarted(true);
@@ -156,6 +160,13 @@ public class MacroHandler {
                     LogUtils.sendError("You are in the barn and have Visitors Macro disabled!");
                 }
                 return;
+            }
+            if (mc.thePlayer.getPosition().distanceSq(AutoTrap.getInstance().trapPos()) < 25){
+                if (AutoTrap.getInstance().canEnableMacro(true)) {
+                    AutoTrap.getInstance().setManuallyStarted(true);
+                    AutoTrap.getInstance().start();
+                    return;
+                }
             }
             if (FailsafeManager.getInstance().isHadEmergency()) {
                 if (FailsafeManager.getInstance().triggeredFailsafe.isPresent()) {
@@ -344,7 +355,7 @@ public class MacroHandler {
             if (!message.contains(":") && GameStateHandler.getInstance().inGarden()) {
                 if (message.equals("Your spawn location has been set!")) {
                     PlayerUtils.setSpawnLocation();
-                    PestFarmer.instance.wasSpawnChanged = false;
+                    PestFarmer.getInstance().wasSpawnChanged = false;
                     for (Rewarp rewarp : FarmHelperConfig.rewarpList) {
                         if (mc.thePlayer.getDistance(rewarp.x, rewarp.y, rewarp.z) < 2) {
                             LogUtils.sendWarning("Spawn location is close to the rewarp location! Removing it from the list...");
@@ -546,6 +557,10 @@ public class MacroHandler {
         } else if (AutoPestExchange.getInstance().canEnableMacro(false)) {
             LogUtils.sendDebug("Activating Auto Pest Hunter");
             AutoPestExchange.getInstance().start();
+            return true;
+        } else if (AutoTrap.getInstance().canEnableMacro(false)) {
+            LogUtils.sendDebug("Activating Auto Trap");
+            AutoTrap.getInstance().start();
             return true;
         }
         return false;

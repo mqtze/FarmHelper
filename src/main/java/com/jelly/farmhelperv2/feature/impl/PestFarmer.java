@@ -10,10 +10,12 @@ import com.jelly.farmhelperv2.handler.RotationHandler;
 import com.jelly.farmhelperv2.pathfinder.FlyPathFinderExecutor;
 import com.jelly.farmhelperv2.util.*;
 import com.jelly.farmhelperv2.util.helper.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
+
 import net.minecraft.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -28,7 +30,15 @@ import java.lang.Math;
 
 public class PestFarmer implements IFeature {
 
-    public static PestFarmer instance = new PestFarmer();
+    private static PestFarmer instance;
+
+    public static PestFarmer getInstance() {
+        if (instance == null) {
+            instance = new PestFarmer();
+        }
+        return instance;
+    }
+
     private final Minecraft mc = Minecraft.getMinecraft();
     private boolean enabled = false;
     private long pestSpawnTime = 0L;
@@ -96,7 +106,7 @@ public class PestFarmer implements IFeature {
         if (enabled) {
             return;
         }
-        requiredAng = new float[] {
+        requiredAng = new float[]{
                 AngleUtils.get360RotationYaw(MacroHandler.getInstance().getCurrentMacro().get().getYaw()),
                 MacroHandler.getInstance().getCurrentMacro().get().getPitch()
         };
@@ -203,7 +213,8 @@ public class PestFarmer implements IFeature {
             LogUtils.sendDebug("[PestFarmer] Pest Spawned.");
         }
 
-        if (!enabled || (state != State.WAITING_FOR_SPAWN && returnState != ReturnState.WAITING_FOR_SPAWN && returnState != ReturnState.WAITING_FOR_SPAWN_2)) return;
+        if (!enabled || (state != State.WAITING_FOR_SPAWN && returnState != ReturnState.WAITING_FOR_SPAWN && returnState != ReturnState.WAITING_FOR_SPAWN_2))
+            return;
         if (message.contains("Your spawn location has been set!")) {
             event.setCanceled(true);
             mc.thePlayer.addChatMessage(event.message);
@@ -217,9 +228,8 @@ public class PestFarmer implements IFeature {
             } else {
                 if (returnState.ordinal() == 1) {
                     setState(ReturnState.TP_TO_SPAWN_PLOT, 0);
-                }
-                else {
-					setState(ReturnState.ENDING, FarmHelperConfig.getRandomGUIMacroDelay());
+                } else {
+                    setState(ReturnState.ENDING, FarmHelperConfig.getRandomGUIMacroDelay());
                     wasSpawnChanged = false;
                 }
             }
@@ -243,337 +253,337 @@ public class PestFarmer implements IFeature {
         }
 
         switch (mainState) {
-        case NONE:
-            stop();
-            break;
-        case SWAP_N_START: {
-            switch (state) {
-                case SWAPPING:
-                    AutoWardrobe.instance.swapTo(swapTo, equipments);
-                    setState(State.WAITING_FOR_SWAP, 0);
-                    break;
-                case WAITING_FOR_SWAP:
-                    if (AutoWardrobe.instance.isRunning()) {
-                        return;
-                    }
-                    if (pestSpawned && ((FarmHelperConfig.pestFarmerKillPests && GameStateHandler.getInstance().getPestsCount() >= FarmHelperConfig.pestFarmerStartKillAt) || FarmHelperConfig.pestFarmingSetSpawn)) {
-                        setState(State.SETTING_SPAWN, 0);
-                    } else {
-                        stop();
-                    }
-                    break;
-                case SETTING_SPAWN:
-                    mc.thePlayer.sendChatMessage("/setspawn");
-                    setState(State.WAITING_FOR_SPAWN, 5000);
-                    break;
-                case WAITING_FOR_SPAWN:
-                    if (hasTimerEnded()) {
-                        LogUtils.sendError("Could not verify spawn change under 5 seconds, disabling");
-                        stop();
-                    }
-                    break;
-                case TOGGLING_PEST_DESTROYER:
-                    if (PestsDestroyer.getInstance().canEnableMacro(true)) {
-                        PestsDestroyer.getInstance().start();
-                        setState(State.WAITING_FOR_PEST_DESTROYER, 0);
+            case NONE:
+                stop();
+                break;
+            case SWAP_N_START: {
+                switch (state) {
+                    case SWAPPING:
+                        AutoWardrobe.getInstance().swapTo(swapTo, equipments);
+                        setState(State.WAITING_FOR_SWAP, 0);
                         break;
-                    }
-                    LogUtils.sendError("Cannot enable PestsDestroyer. Please turn it on from the PestsDestroyer tab.");
-                    stop();
-                    break;
-                case WAITING_FOR_PEST_DESTROYER:
-                    if (PestsDestroyer.getInstance().isRunning() || this.isTimerRunning()) {
-                        break;
-                    }
-
-                    ItemStack heldItem = mc.thePlayer.getHeldItem();
-                    if (FarmHelperConfig.pestFarmerCastRod && (heldItem == null || !(heldItem.getItem() instanceof ItemFishingRod))) {
-                        for (int i = 0; i < 9; i++) {
-                            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
-                            if (stack != null && stack.getItem() instanceof ItemFishingRod) {
-                                mc.thePlayer.inventory.currentItem = i;
-                                this.timer.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
-                                return; 
-                            }
+                    case WAITING_FOR_SWAP:
+                        if (AutoWardrobe.getInstance().isRunning()) {
+                            return;
                         }
-                        LogUtils.sendError("Could not find a fishing rod in hotbar");
-                    }
-
-                    if (!this.rodCasted) {
-                        KeyBindUtils.rightClick();
-                        this.timer.schedule(200);
-                        this.rodCasted = true;
-                        break; 
-                    }
-                    mc.thePlayer.sendChatMessage("/warp garden");
-                    setState(State.WAITING_FOR_WARP, 5000);
-                    preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
-                    break;
-                case WAITING_FOR_WARP:
-                    if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
-                        LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
-                        setState(State.ENDING, 0);
-                        failed = true;
+                        if (pestSpawned && ((FarmHelperConfig.pestFarmerKillPests && GameStateHandler.getInstance().getPestsCount() >= FarmHelperConfig.pestFarmerStartKillAt) || FarmHelperConfig.pestFarmingSetSpawn)) {
+                            setState(State.SETTING_SPAWN, 0);
+                        } else {
+                            stop();
+                        }
                         break;
-                    }
-
-                    if (preTpBlockPos.get().equals(mc.thePlayer.getPosition()) || !mc.theWorld.isBlockLoaded(mc.thePlayer.getPosition())) {
+                    case SETTING_SPAWN:
+                        mc.thePlayer.sendChatMessage("/setspawn");
+                        setState(State.WAITING_FOR_SPAWN, 5000);
                         break;
-                    }
+                    case WAITING_FOR_SPAWN:
+                        if (hasTimerEnded()) {
+                            LogUtils.sendError("Could not verify spawn change under 5 seconds, disabling");
+                            stop();
+                        }
+                        break;
+                    case TOGGLING_PEST_DESTROYER:
+                        if (PestsDestroyer.getInstance().canEnableMacro(true)) {
+                            PestsDestroyer.getInstance().start();
+                            setState(State.WAITING_FOR_PEST_DESTROYER, 0);
+                            break;
+                        }
+                        LogUtils.sendError("Cannot enable PestsDestroyer. Please turn it on from the PestsDestroyer tab.");
+                        stop();
+                        break;
+                    case WAITING_FOR_PEST_DESTROYER:
+                        if (PestsDestroyer.getInstance().isRunning() || this.isTimerRunning()) {
+                            break;
+                        }
 
-                    setState(State.ENDING, FarmHelperConfig.getRandomGUIMacroDelay());
-                    break;
-                case ENDING:
-                    if (isTimerRunning()) return;
-                    stop();
-                    break;
+                        ItemStack heldItem = mc.thePlayer.getHeldItem();
+                        if (FarmHelperConfig.pestFarmerCastRod && (heldItem == null || !(heldItem.getItem() instanceof ItemFishingRod))) {
+                            for (int i = 0; i < 9; i++) {
+                                ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+                                if (stack != null && stack.getItem() instanceof ItemFishingRod) {
+                                    mc.thePlayer.inventory.currentItem = i;
+                                    this.timer.schedule(FarmHelperConfig.getRandomGUIMacroDelay());
+                                    return;
+                                }
+                            }
+                            LogUtils.sendError("Could not find a fishing rod in hotbar");
+                        }
+
+                        if (!this.rodCasted) {
+                            KeyBindUtils.rightClick();
+                            this.timer.schedule(200);
+                            this.rodCasted = true;
+                            break;
+                        }
+                        mc.thePlayer.sendChatMessage("/warp garden");
+                        setState(State.WAITING_FOR_WARP, 5000);
+                        preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
+                        break;
+                    case WAITING_FOR_WARP:
+                        if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
+                            LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
+                            setState(State.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        if (preTpBlockPos.get().equals(mc.thePlayer.getPosition()) || !mc.theWorld.isBlockLoaded(mc.thePlayer.getPosition())) {
+                            break;
+                        }
+
+                        setState(State.ENDING, FarmHelperConfig.getRandomGUIMacroDelay());
+                        break;
+                    case ENDING:
+                        if (isTimerRunning()) return;
+                        stop();
+                        break;
                 }
                 break;
-        }
+            }
 
-        case RETURN: {
-            switch (returnState) {
-                case STARTING:
-                    if (BlockUtils.canFlyHigher(10)) {
+            case RETURN: {
+                switch (returnState) {
+                    case STARTING:
+                        if (BlockUtils.canFlyHigher(10)) {
+                            mc.thePlayer.sendChatMessage("/setspawn");
+                            setState(ReturnState.WAITING_FOR_SPAWN, 5000);
+                            return;
+                        } else {
+                            isRewarpObstructed = true;
+                        }
+
+                        setState(ReturnState.TP_TO_SPAWN_PLOT, 250);
+                        break;
+                    case WAITING_FOR_SPAWN:
+                        if (hasTimerEnded()) {
+                            LogUtils.sendError("Could not verify spawn change under 5 seconds. Continuing");
+                            isRewarpObstructed = true;
+                            setState(ReturnState.TP_TO_SPAWN_PLOT, 0);
+                        }
+                        break;
+                    case TP_TO_SPAWN_PLOT:
+                        if (isTimerRunning()) return;
+
+                        if (!mc.thePlayer.capabilities.isFlying) {
+                            PestsDestroyer.getInstance().fly();
+                            return;
+                        }
+
+                        KeyBindUtils.stopMovement();
+                        if (mc.thePlayer.motionY != 0.0) return;
+
+                        mc.thePlayer.sendChatMessage("/plottp " + FarmHelperConfig.spawnPlot);
+                        setState(ReturnState.TP_VERIFY, 5000);
+                        preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
+                        break;
+                    case TP_VERIFY:
+                        if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
+                            LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        if (preTpBlockPos.get().equals(mc.thePlayer.getPosition()) || !mc.theWorld.isBlockLoaded(mc.thePlayer.getPosition())) {
+                            break;
+                        }
+
+                        setState(ReturnState.VERIFY_PLOT, 0);
+                        break;
+                    case VERIFY_PLOT:
+                        boolean isSuffocating = PlayerUtils.isPlayerSuffocating();
+                        if (isTimerRunning() && isSuffocating) return;
+
+                        if (isSuffocating) {
+                            if (!timer.isScheduled()) {
+                                KeyBindUtils.setKeyBindState(mc.gameSettings.keyBindJump, true);
+                                timer.schedule(5000);
+                            } else {
+                                setState(ReturnState.ESCAPE_TP, 0);
+                            }
+                            break;
+                        }
+
+                        KeyBindUtils.stopMovement();
+                        setState(ReturnState.FLY_TO_ABOVE_SPAWN, FarmHelperConfig.getRandomGUIMacroDelay());
+                        break;
+                    case ESCAPE_TP:
+                        mc.thePlayer.sendChatMessage("/plottp barn");
+                        preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
+                        setState(ReturnState.ESCAPE_TP_VERIFY, 5000);
+                        break;
+                    case ESCAPE_TP_VERIFY:
+                        if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
+                            LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        if (preTpBlockPos.get().equals(mc.thePlayer.getPosition())) {
+                            break;
+                        }
+
+                        setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
+                        break;
+                    case FLY_TO_ABOVE_SPAWN:
+                        if (this.isTimerRunning()) break;
+
+                        if (FlyPathFinderExecutor.getInstance().isRunning()) {
+                            FlyPathFinderExecutor.getInstance().stop();
+                            break;
+                        }
+
+                        if (flyAttempts > 3 || mainAttempts > 3) {
+                            LogUtils.sendError("Tried " + (flyAttempts + mainAttempts * 3) + " times but failed");
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        flyAttempts++;
+                        FlyPathFinderExecutor.getInstance().setStoppingPositionThreshold(0.5f);
+                        FlyPathFinderExecutor.getInstance().findPath(new Vec3(FarmHelperConfig.spawnPosX + 0.5f, 85, FarmHelperConfig.spawnPosZ + 0.5f), true, true);
+                        setState(ReturnState.WAITING_FOR_FLIGHT, 0);
+                        break;
+                    case WAITING_FOR_FLIGHT:
+                        if (FlyPathFinderExecutor.getInstance().isRunning()) break;
+
+                        if (FlyPathFinderExecutor.getInstance().getState().ordinal() != 2 && Math.abs(Math.floor(mc.thePlayer.posX) - FarmHelperConfig.spawnPosX) < 1 && Math.abs(Math.floor(mc.thePlayer.posZ) - FarmHelperConfig.spawnPosZ) < 1) {
+                            setState(ReturnState.FLY_TO_SPAWN_BLOCK, 0);
+                            flyAttempts = 0;
+                        } else {
+                            setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
+                        }
+                        break;
+                    case FLY_TO_SPAWN_BLOCK:
+                        if (FlyPathFinderExecutor.getInstance().isRunning()) {
+                            FlyPathFinderExecutor.getInstance().stop();
+                            break;
+                        }
+
+                        if (flyAttempts > 3 || mainAttempts > 3) {
+                            LogUtils.sendError("Tried " + (flyAttempts + 1 + mainAttempts * 3) + " times but failed");
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        flyAttempts++;
+                        FlyPathFinderExecutor.getInstance().setStoppingPositionThreshold(0.5f);
+                        FlyPathFinderExecutor.getInstance().findPath(new Vec3(FarmHelperConfig.spawnPosX + 0.5f, FarmHelperConfig.spawnPosY + 0.15, FarmHelperConfig.spawnPosZ + 0.5f), true, true);
+                        setState(ReturnState.WAITING_FOR_FLIGHT_AND_VERIFYING, 0);
+                        break;
+                    case WAITING_FOR_FLIGHT_AND_VERIFYING:
+                        if (FlyPathFinderExecutor.getInstance().isRunning()) break;
+
+                        if (FlyPathFinderExecutor.getInstance().getState().ordinal() == 2) {
+                            LogUtils.sendError("Failed to pathfind to spawn. Stoping");
+                            FlyPathFinderExecutor.getInstance().stop();
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        BlockPos pos = BlockUtils.getRelativeBlockPos(0, 0, 0);
+                        if (pos.getX() == FarmHelperConfig.spawnPosX && pos.getZ() == FarmHelperConfig.spawnPosZ) {
+                            KeyBindUtils.setKeyBindState(mc.gameSettings.keyBindSneak, mc.thePlayer.capabilities.isFlying);
+                            if (FarmHelperConfig.pestFarmingUseMousemat) {
+                                setState(ReturnState.HOLD_AND_USE_MOUSEMAT, 100);
+                            } else {
+                                setState(ReturnState.SNEAKING_AND_ROTATING, 0);
+                            }
+                        } else {
+                            setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
+                            mainAttempts++;
+                        }
+                        break;
+                    case SNEAKING_AND_ROTATING:
+                        RotationHandler.getInstance().easeTo(new RotationConfiguration(
+                                new Rotation(AngleUtils.get360RotationYaw(FarmHelperConfig.spawnYaw), FarmHelperConfig.spawnPitch),
+                                500,
+                                null
+                        ));
+                        setState(ReturnState.SETTING_SPAWN, 5000);
+                        break;
+                    case HOLD_AND_USE_MOUSEMAT:
+                        if (isTimerRunning()) return;
+
+                        ItemStack stack = mc.thePlayer.getHeldItem();
+                        if (stack == null || !stack.getDisplayName().contains("Squeaky Mousemat")) {
+                            setState(ReturnState.HOLD_AND_USE_MOUSEMAT, 300);
+                            if (!InventoryUtils.holdItem("Squeaky Mousemat")) {
+                                LogUtils.sendError("Could Not Find Squeaky Mousemat In Inventory. Reverting to Rotation.");
+                                setState(ReturnState.SNEAKING_AND_ROTATING, 0);
+                            }
+                            break;
+                        }
+
+                        List<String> lore = InventoryUtils.getItemLore(stack);
+                        int j = 0;
+                        float[] ang = new float[2];
+                        for (String str : lore) {
+                            if (str.startsWith("Selected ")) {
+                                ang[j++] = Float.parseFloat(str.split(": ")[1]);
+                                if (j == 2) break;
+                            }
+                        }
+
+                        if (!(almostEqual(AngleUtils.get360RotationYaw(ang[0]), requiredAng[0], 0.1f) && almostEqual(ang[1], requiredAng[1], 0.1f))) {
+                            LogUtils.sendError("Mousemat angle is Wrong. Not using Mousemat. MacroAng: " + Arrays.toString(requiredAng) + ", MousematAng: [" + AngleUtils.get360RotationYaw(ang[0]) + ", " + ang[1] + "]");
+                            setState(ReturnState.SNEAKING_AND_ROTATING, 0);
+                            break;
+                        }
+
+                        KeyBindUtils.leftClick();
+                        setState(ReturnState.WAITING_FOR_MOUSEMAT, 5000);
+                        break;
+                    case WAITING_FOR_MOUSEMAT:
+                        if (almostEqual(AngleUtils.get360RotationYaw(), requiredAng[0], 0.1f) && almostEqual(mc.thePlayer.rotationPitch, requiredAng[1], 0.1f)) {
+                            LogUtils.sendDebug("Successfully used mousemat. Ordinal: " + returnState.ordinal());
+                            setState(ReturnState.SETTING_SPAWN, 500);
+                            break;
+                        }
+
+                        if (this.hasTimerEnded()) {
+                            LogUtils.sendError("Could not Verify Mousemat in under 5 seconds. Going Back to Rotation");
+                            setState(ReturnState.SNEAKING_AND_ROTATING, 0);
+                        }
+                        break;
+                    case SETTING_SPAWN:
+                        if (hasTimerEnded()) {
+                            LogUtils.sendError("Failed to rotate and shift");
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
+                        }
+
+                        if (RotationHandler.getInstance().isRotating() || !mc.thePlayer.onGround) break;
+                        pos = BlockUtils.getRelativeBlockPos(0, 0, 0);
+                        if (!(pos.getX() == FarmHelperConfig.spawnPosX && pos.getY() == FarmHelperConfig.spawnPosY && pos.getZ() == FarmHelperConfig.spawnPosZ)) {
+                            LogUtils.sendError("Could not go to spawn block.");
+                            setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
+                            mainAttempts++;
+                            break;
+                        }
                         mc.thePlayer.sendChatMessage("/setspawn");
-                        setState(ReturnState.WAITING_FOR_SPAWN, 5000);
-                        return;
-                    } else {
-                        isRewarpObstructed = true;
-                    }
-
-                    setState(ReturnState.TP_TO_SPAWN_PLOT, 250);
-                    break;
-                case WAITING_FOR_SPAWN:
-                    if (hasTimerEnded()) {
-                        LogUtils.sendError("Could not verify spawn change under 5 seconds. Continuing");
-                        isRewarpObstructed = true;
-                        setState(ReturnState.TP_TO_SPAWN_PLOT, 0);
-                    }
-                    break;
-                case TP_TO_SPAWN_PLOT:
-                    if (isTimerRunning()) return;
-
-                    if (!mc.thePlayer.capabilities.isFlying) {
-                        PestsDestroyer.getInstance().fly();
-                        return;
-                    }
-                    
-                    KeyBindUtils.stopMovement();
-                    if (mc.thePlayer.motionY != 0.0) return;
-
-                    mc.thePlayer.sendChatMessage("/plottp " + FarmHelperConfig.spawnPlot);
-                    setState(ReturnState.TP_VERIFY, 5000);
-                    preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
-                    break;
-                case TP_VERIFY:
-                    if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
-                        LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
+                        setState(ReturnState.WAITING_FOR_SPAWN_2, 5000);
                         break;
-                    }
-
-                    if (preTpBlockPos.get().equals(mc.thePlayer.getPosition()) || !mc.theWorld.isBlockLoaded(mc.thePlayer.getPosition())) {
-                        break;
-                    }
-
-                    setState(ReturnState.VERIFY_PLOT, 0);
-                    break;
-                case VERIFY_PLOT:
-                    boolean isSuffocating = PlayerUtils.isPlayerSuffocating();
-                    if (isTimerRunning() && isSuffocating) return;
-
-                    if (isSuffocating) {
-                        if (!timer.isScheduled()) {
-                            KeyBindUtils.setKeyBindState(mc.gameSettings.keyBindJump, true);
-                            timer.schedule(5000);
-                        } else {
-                            setState(ReturnState.ESCAPE_TP, 0);
+                    case WAITING_FOR_SPAWN_2:
+                        if (hasTimerEnded()) {
+                            LogUtils.sendError("Failed to set spawn 2");
+                            setState(ReturnState.ENDING, 0);
+                            failed = true;
+                            break;
                         }
                         break;
-                    }
-
-                    KeyBindUtils.stopMovement();
-                    setState(ReturnState.FLY_TO_ABOVE_SPAWN, FarmHelperConfig.getRandomGUIMacroDelay());
-                    break;
-                case ESCAPE_TP:
-                    mc.thePlayer.sendChatMessage("/plottp barn");
-                    preTpBlockPos = Optional.of(mc.thePlayer.getPosition());
-                    setState(ReturnState.ESCAPE_TP_VERIFY, 5000);
-                    break;
-                case ESCAPE_TP_VERIFY:
-                    if (hasTimerEnded() || !preTpBlockPos.isPresent()) {
-                        LogUtils.sendError("Could not tp/pretpblockpos isnt present. pretpblockpos: " + preTpBlockPos.isPresent());
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
+                    case ENDING:
+                        KeyBindUtils.stopMovement();
+                        stop();
                         break;
-                    }
-
-                    if (preTpBlockPos.get().equals(mc.thePlayer.getPosition())) {
-                        break;
-                    }
-
-                    setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
-                    break;
-                case FLY_TO_ABOVE_SPAWN:
-                    if (this.isTimerRunning()) break;
-
-                    if (FlyPathFinderExecutor.getInstance().isRunning()) {
-                        FlyPathFinderExecutor.getInstance().stop();
-                        break;
-                    }
-
-                    if (flyAttempts > 3 || mainAttempts > 3) {
-                        LogUtils.sendError("Tried " + (flyAttempts + mainAttempts * 3) + " times but failed");
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
-                        break;
-                    }
-
-                    flyAttempts++;
-                    FlyPathFinderExecutor.getInstance().setStoppingPositionThreshold(0.5f);
-                    FlyPathFinderExecutor.getInstance().findPath(new Vec3(FarmHelperConfig.spawnPosX + 0.5f, 85, FarmHelperConfig.spawnPosZ + 0.5f), true, true);
-                    setState(ReturnState.WAITING_FOR_FLIGHT, 0);
-                    break;
-                case WAITING_FOR_FLIGHT:
-                    if (FlyPathFinderExecutor.getInstance().isRunning()) break;
-
-                    if (FlyPathFinderExecutor.getInstance().getState().ordinal() != 2 && Math.abs(Math.floor(mc.thePlayer.posX) - FarmHelperConfig.spawnPosX) < 1 && Math.abs(Math.floor(mc.thePlayer.posZ) - FarmHelperConfig.spawnPosZ) < 1) {
-                        setState(ReturnState.FLY_TO_SPAWN_BLOCK, 0);
-                        flyAttempts = 0;
-                    } else {
-                        setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
-                    }
-                    break;
-                case FLY_TO_SPAWN_BLOCK:
-                    if (FlyPathFinderExecutor.getInstance().isRunning()) {
-                        FlyPathFinderExecutor.getInstance().stop();
-                        break;
-                    }
-
-                    if (flyAttempts > 3 || mainAttempts > 3) {
-                        LogUtils.sendError("Tried " + (flyAttempts + 1 + mainAttempts * 3) + " times but failed");
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
-                        break;
-                    }
-
-                    flyAttempts++;
-                    FlyPathFinderExecutor.getInstance().setStoppingPositionThreshold(0.5f);
-                    FlyPathFinderExecutor.getInstance().findPath(new Vec3(FarmHelperConfig.spawnPosX + 0.5f, FarmHelperConfig.spawnPosY + 0.15, FarmHelperConfig.spawnPosZ + 0.5f), true, true);
-                    setState(ReturnState.WAITING_FOR_FLIGHT_AND_VERIFYING, 0);
-                    break;
-                case WAITING_FOR_FLIGHT_AND_VERIFYING:
-                    if (FlyPathFinderExecutor.getInstance().isRunning()) break;
-
-                    if (FlyPathFinderExecutor.getInstance().getState().ordinal() == 2) {
-                        LogUtils.sendError("Failed to pathfind to spawn. Stoping");
-                        FlyPathFinderExecutor.getInstance().stop();
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
-                        break;
-                    }
-
-                    BlockPos pos = BlockUtils.getRelativeBlockPos(0, 0, 0);
-                    if (pos.getX() == FarmHelperConfig.spawnPosX && pos.getZ() == FarmHelperConfig.spawnPosZ) {
-                        KeyBindUtils.setKeyBindState(mc.gameSettings.keyBindSneak, mc.thePlayer.capabilities.isFlying);
-                        if (FarmHelperConfig.pestFarmingUseMousemat) {
-                            setState(ReturnState.HOLD_AND_USE_MOUSEMAT, 100);
-                        } else {
-                            setState(ReturnState.SNEAKING_AND_ROTATING, 0);
-                        }
-                    } else {
-                        setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
-                        mainAttempts++;
-                    }
-                    break;
-                case SNEAKING_AND_ROTATING:
-                    RotationHandler.getInstance().easeTo(new RotationConfiguration(
-                            new Rotation(AngleUtils.get360RotationYaw(FarmHelperConfig.spawnYaw), FarmHelperConfig.spawnPitch),
-                            500,
-                            null
-                    ));
-                    setState(ReturnState.SETTING_SPAWN, 5000);
-                    break;
-                case HOLD_AND_USE_MOUSEMAT:
-                    if (isTimerRunning()) return;
-
-                    ItemStack stack = mc.thePlayer.getHeldItem();
-                    if (stack == null || !stack.getDisplayName().contains("Squeaky Mousemat")) {
-                        setState(ReturnState.HOLD_AND_USE_MOUSEMAT, 300);
-                        if (!InventoryUtils.holdItem("Squeaky Mousemat")) {
-                            LogUtils.sendError("Could Not Find Squeaky Mousemat In Inventory. Reverting to Rotation.");
-                            setState(ReturnState.SNEAKING_AND_ROTATING, 0);
-                        }
-                        break;
-                    }
-
-                    List<String> lore = InventoryUtils.getItemLore(stack);
-                    int j = 0;
-                    float[] ang = new float[2];
-                    for (String str: lore) {
-                        if (str.startsWith("Selected ")) {
-                            ang[j++] = Float.parseFloat(str.split(": ")[1]);
-                            if (j == 2) break;
-                        }
-                    }
-
-                    if (!(almostEqual(AngleUtils.get360RotationYaw(ang[0]), requiredAng[0], 0.1f) && almostEqual(ang[1], requiredAng[1], 0.1f))) {
-                        LogUtils.sendError("Mousemat angle is Wrong. Not using Mousemat. MacroAng: " + Arrays.toString(requiredAng) + ", MousematAng: [" + AngleUtils.get360RotationYaw(ang[0]) + ", " + ang[1] + "]");
-                        setState(ReturnState.SNEAKING_AND_ROTATING, 0);
-                        break;
-                    }
-
-                    KeyBindUtils.leftClick();
-                    setState(ReturnState.WAITING_FOR_MOUSEMAT, 5000);
-                    break;
-                case WAITING_FOR_MOUSEMAT:
-                    if (almostEqual(AngleUtils.get360RotationYaw(), requiredAng[0], 0.1f) && almostEqual(mc.thePlayer.rotationPitch, requiredAng[1], 0.1f)) {
-                        LogUtils.sendDebug("Successfully used mousemat. Ordinal: " + returnState.ordinal());
-                        setState(ReturnState.SETTING_SPAWN, 500);
-                        break;
-                    }
-
-                    if (this.hasTimerEnded()) {
-                        LogUtils.sendError("Could not Verify Mousemat in under 5 seconds. Going Back to Rotation");
-                        setState(ReturnState.SNEAKING_AND_ROTATING, 0);
-                    }
-                    break;
-                case SETTING_SPAWN:
-                    if (hasTimerEnded()) {
-                        LogUtils.sendError("Failed to rotate and shift");
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
-                        break;
-                    }
-
-                    if (RotationHandler.getInstance().isRotating() || !mc.thePlayer.onGround) break;
-                    pos = BlockUtils.getRelativeBlockPos(0, 0, 0);
-                    if (!(pos.getX() == FarmHelperConfig.spawnPosX && pos.getY() == FarmHelperConfig.spawnPosY && pos.getZ() == FarmHelperConfig.spawnPosZ)) {
-                        LogUtils.sendError("Could not go to spawn block.");
-                        setState(ReturnState.FLY_TO_ABOVE_SPAWN, 0);
-                        mainAttempts++;
-                        break;
-                    }
-                    mc.thePlayer.sendChatMessage("/setspawn");
-                    setState(ReturnState.WAITING_FOR_SPAWN_2, 5000);
-                    break;
-                case WAITING_FOR_SPAWN_2:
-                    if (hasTimerEnded()) {
-                        LogUtils.sendError("Failed to set spawn 2");
-                        setState(ReturnState.ENDING, 0);
-                        failed = true;
-                        break;
-                    }
-                    break;
-                case ENDING:
-                    KeyBindUtils.stopMovement();
-                    stop();
-                    break;
                 }
-            break;
- 	    }
+                break;
+            }
         }
     }
 

@@ -90,7 +90,7 @@ public class FarmHelperMainCommand {
 
     @SubCommand(aliases = {"msc"})
     public void markSpawnChanged() {
-        PestFarmer.instance.wasSpawnChanged = true;
-        System.out.println("Changed: " + PestFarmer.instance.wasSpawnChanged);
+        PestFarmer.getInstance().wasSpawnChanged = true;
+        System.out.println("Changed: " + PestFarmer.getInstance().wasSpawnChanged);
     }
 }

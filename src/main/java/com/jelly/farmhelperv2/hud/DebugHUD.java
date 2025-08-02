@@ -121,6 +121,10 @@ public class DebugHUD extends TextHud {
             lines.add("   Clock: " + AutoComposter.getInstance().getDelayClock().getRemainingTime());
             lines.add("   Stuck: " + AutoComposter.getInstance().getStuckClock().getRemainingTime());
         }
+        if (FarmHelperConfig.autoTrap){
+            lines.add("Full Traps: " + GameStateHandler.getInstance().getTrapsFull());
+            lines.add("No Bait Traps: " + GameStateHandler.getInstance().getTrapsNoBait());
+        }
         if (AutoGodPot.getInstance().isRunning()) {
             lines.add("AutoGodPot");
             lines.add("   Mode: " + AutoGodPot.getInstance().getGodPotMode());

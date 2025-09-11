@@ -406,6 +406,8 @@ public class AutoTrap implements IFeature {
                 break;
             case WAITING_FOR_SWAP:
                 if (AutoWardrobe.getInstance().isRunning()) {
+                    stuckClock.schedule(STUCK_DELAY);
+                    delayClock.schedule(getRandomDelay());
                     return;
                 }
                 setPetSwapState(PetSwapState.END);
@@ -617,7 +619,7 @@ public class AutoTrap implements IFeature {
                 if (lore.stream().anyMatch(l -> l.contains("Click to release!"))) {
                     setTrapState(TrapState.EMPTY_TRAP);
                     KeyBindUtils.rightClick(); // use vacuum ability
-                } else if (lore.stream().anyMatch(l -> l.contains("There are no Pests to release!"))) {
+                } else if (lore.stream().anyMatch(l -> l.contains("There are no ൠ Pests to release!"))) {
                     setTrapState(TrapState.PREPARE_FOR_NEXT_TRAP);
                     LogUtils.sendWarning("[Auto Trap] Already emptied the trap!");
                 } else {
